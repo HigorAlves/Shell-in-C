@@ -3,14 +3,14 @@
 int main(int argc, char **argv){
 	char *line;
   char **args;
-	int argc2;
+	int auxArgc;
   int status;
 
   do {
     printf("Insira seu comando: ");
     line = readLine();
-    args = splitLine(&argc2,line);
-    status = execute(argc2, args);
+    args = splitLine(&auxArgc,line);
+    status = execute(auxArgc, args);
 
     free(line);
     free(args);
