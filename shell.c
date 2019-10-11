@@ -29,7 +29,7 @@ int lauch(char **args){
   return 1;
 }
 
-int executeProgram(char **args){
+int execute(char **args){
   int i;
 
   if (args[0] == NULL) {
@@ -132,20 +132,4 @@ char **splitLine(char *line){
   }
   tokens[position] = NULL;
   return tokens;
-}
-
-void shellLoop(void){
-  char *line;
-  char **args;
-  int status;
-
-  do {
-    printf("Insira seu comando: ");
-    line = readLine();
-    args = splitLine(line);
-    status = executeProgram(args);
-
-    free(line);
-    free(args);
-  } while (status);
 }
