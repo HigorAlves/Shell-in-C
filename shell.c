@@ -7,57 +7,8 @@
 
 #define BUFSIZE 64
 #define TOKENDELIMITER " \t\r\n\a"
-#define READLINEBUFSIZE 1024
 
-int cdCommnand(char **args);
-int helpCommand(char **args);
-int exitCommand(char **args);
-
-char *buildinStrings[] = {
-  "cd",
-  "help",
-  "finalizar"
-};
-
-int (*buildinCommands[]) (char **) = {
-  &cdCommnand,
-  &helpCommand,
-  &exitCommand
-};
-
-int buildinNums() {
-  return sizeof(buildinStrings) / sizeof(char *);
-}
-
-int cdCommnand(char **args)
-{
-  if (args[1] == NULL) {
-    fprintf(stderr, "ERROR: um argumento é esperado \"cd\"\n");
-  } else {
-    if (chdir(args[1]) != 0) {
-      perror("lsh");
-    }
-  }
-  return 1;
-}
-
-int helpCommand(char **args)
-{
-  int i;
-  printf("SHELL EM C\n");
-  printf("FEITO POR HIGOR ALVE E THIAGO SOUTO.\n");
-
-  printf("PARA SAIR DO PROGRAMA BASTA DIGITAR finalizar.\n");
-  return 1;
-}
-
-int exitCommand(char **args)
-{
-  return 0;
-}
-
-int lauch(char **args)
-{
+int lauch(char **args){
   pid_t pid;
   int status;
 
@@ -78,52 +29,60 @@ int lauch(char **args)
   return 1;
 }
 
-int executeProgram(char **args)
-{
+int executeProgram(char **args){
   int i;
 
   if (args[0] == NULL) {
     return 1;
   }
 
-  for (i = 0; i < buildinNums(); i++) {
-    if (strcmp(args[0], buildinStrings[i]) == 0) {
-      return (*buildinCommands[i])(args);
-    }
-  }
+    if(strcmp(args[0], "fim") == 0){
+			return 0;
+		}
+
+		if(strcmp(args[0], "=>") == 0){
+			printf("Ola mundo");
+		}
 
   return lauch(args);
 }
 
-
-char *readLine(void)
-{
-  int bufsize = READLINEBUFSIZE;
+//Pegamos a linha inserida no terminal e a tratamos para que possamos saber se o tamanho dela vai exeder
+//o maximo que podemos guardar, caso ela nao ultrapasse tudo bem, mas se a posicao for maior que o que ja tem 
+//no buffer devemos dar uma realocacao para tudo.
+char *readLine(void){
+  int c;
+  int bufsize = 1024;
   int position = 0;
   char *buffer = malloc(sizeof(char) * bufsize);
-  int c;
 
   if (!buffer) {
-    fprintf(stderr, "ERROR: Nçao foi possivel alocar\n");
+    fprintf(stderr, "ERROR: Não foi possivel fazer a alocação do buffer\n");
     exit(EXIT_FAILURE);
   }
 
   while (1) {
     c = getchar();
 
-    if (c == EOF) {
-      exit(EXIT_SUCCESS);
-    } else if (c == '\n') {
-      buffer[position] = '\0';
-      return buffer;
-    } else {
-      buffer[position] = c;
-    }
+		switch(c){
+			case (EOF):
+				exit(EXIT_SUCCESS);
+			break;
+			case '\n':
+				buffer[position] = '\0';
+      	return buffer;
+			break;
+			default:
+				buffer[position] = c;
+		}
+
+   
     position++;
 
     if (position >= bufsize) {
-      bufsize += READLINEBUFSIZE;
+      bufsize += 1024;
       buffer = realloc(buffer, bufsize);
+
       if (!buffer) {
         fprintf(stderr, "ERROR: Nçao foi possivel alocar\n");
         exit(EXIT_FAILURE);
@@ -132,18 +91,25 @@ char *readLine(void)
   }
 }
 
-char **splitLine(char *line)
-{
+// Pegamos a linha que é recebidda como argumento e a quebramos em varios tokens ou seja
+// fazemos elas virarem palavras separadas dentro de um array para podermos entao trabalhar
+// com as suas funções dentro da proxima funcao chamada pelo loop
+char **splitLine(char *line){
   int bufsize = BUFSIZE, position = 0;
   char **tokens = malloc(bufsize * sizeof(char*));
   char *token, **tokens_backup;
-
+	
+	//Verificamos se conseguimos alocar o tamanho do token para usar
+	// Se nao conseguir ja retorna um erro com a mensagem
   if (!tokens) {
     fprintf(stderr, "ERROR: Erro na alocação\n");
     exit(EXIT_FAILURE);
   }
 
+	//Separamos todos os dados que vem da linha de comando dentro do token
+	//Isso vai formar um array de palavras o que para nos faz muito sentido.
   token = strtok(line, TOKENDELIMITER);
+
   while (token != NULL) {
     tokens[position] = token;
     position++;
@@ -152,8 +118,11 @@ char **splitLine(char *line)
       bufsize += BUFSIZE;
       tokens_backup = tokens;
       tokens = realloc(tokens, bufsize * sizeof(char*));
+
+			//Fazemos as verificaçoões do token para ver se tudo ocorreu bem
+			//e tambem damos um free para parar de dar problema de alocação
       if (!tokens) {
-		free(tokens_backup);
+				free(tokens_backup);
         fprintf(stderr, "ERROR: Erro na alocação\n");
         exit(EXIT_FAILURE);
       }
@@ -165,8 +134,7 @@ char **splitLine(char *line)
   return tokens;
 }
 
-void shellLoop(void)
-{
+void shellLoop(void){
   char *line;
   char **args;
   int status;
