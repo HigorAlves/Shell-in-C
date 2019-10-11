@@ -56,7 +56,7 @@ int exitCommand(char **args)
   return 0;
 }
 
-int lsh_launch(char **args)
+int lauch(char **args)
 {
   pid_t pid;
   int status;
@@ -92,7 +92,7 @@ int executeProgram(char **args)
     }
   }
 
-  return lsh_launch(args);
+  return lauch(args);
 }
 
 
