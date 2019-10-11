@@ -29,20 +29,29 @@ int lauch(char **args){
   return 1;
 }
 
-int execute(char **args){
+int execute(int argc, char **args){
   int i;
 
   if (args[0] == NULL) {
     return 1;
   }
-
-    if(strcmp(args[0], "fim") == 0){
+	 for(i = 0; i < argc;i++){
+		if(strcmp(args[0], "fim") == 0){
 			return 0;
 		}
-
-		if(strcmp(args[0], "=>") == 0){
-			printf("Ola mundo");
+			printf("\nITEM: %s\n", args[i]);
+		if(strcmp(args[i], "=>") == 0){
+			printf("Entrou com a sentinha =>");
 		}
+
+		if(strcmp(args[i], "|") == 0){
+			printf("Entrou com |");
+		}
+
+		if(strcmp(args[i], "<=") == 0){
+			printf("Entrou com a setinha <=");
+		}
+	 }
 
   return lauch(args);
 }
@@ -94,7 +103,7 @@ char *readLine(void){
 // Pegamos a linha que é recebidda como argumento e a quebramos em varios tokens ou seja
 // fazemos elas virarem palavras separadas dentro de um array para podermos entao trabalhar
 // com as suas funções dentro da proxima funcao chamada pelo loop
-char **splitLine(char *line){
+char **splitLine(int *argc, char *line){
   int bufsize = BUFSIZE, position = 0;
   char **tokens = malloc(bufsize * sizeof(char*));
   char *token, **tokens_backup;
@@ -113,6 +122,7 @@ char **splitLine(char *line){
   while (token != NULL) {
     tokens[position] = token;
     position++;
+		*argc = *argc+1;
 
     if (position >= bufsize) {
       bufsize += BUFSIZE;
